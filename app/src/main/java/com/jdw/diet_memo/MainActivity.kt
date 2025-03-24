@@ -7,10 +7,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.DatePicker
+import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -27,6 +31,8 @@ class MainActivity : AppCompatActivity() {
 
             val dateBtn = alertDialog.findViewById<Button>(R.id.btn)
 
+            var dateText = ""
+
             dateBtn?.setOnClickListener {
 
                 val today = GregorianCalendar()
@@ -41,11 +47,27 @@ class MainActivity : AppCompatActivity() {
                         month: Int,
                         dayOfMonth: Int
                     ) {
-                        dateBtn.setText("${year}.${month}.${date}")
+                        dateText = "${year}.${month}.${date}"
                     }
                 }, year, month, date)
 
                 dlg.show()
+            }
+
+            val saveBtn = alertDialog.findViewById<Button>(R.id.saveBtn)
+            saveBtn?.setOnClickListener {
+
+                val memo = alertDialog.findViewById<EditText>(R.id.memo)?.text.toString()
+
+                val dateModel = DateModel(
+                    dateText,
+                    memo
+                )
+
+                val database = Firebase.database
+                val myRef = database.getReference("memo")
+
+                myRef.push().setValue(dateModel)
             }
         }
 
